@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="styles/kendo.default.min.css" />
+    <link rel="stylesheet" href="styles/kendo.default.mobile.min.css" />
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/kendo.all.min.js"></script>
+</head>
+
+<body>
+    <div id="example">
+        <div id="header">
+            <table width="100%">
+                <tr>
+                    <td width=5% align="center" rowspan="2"> <img width=80 height=80 src="img/logo.jpg"/> </td>
+                    <td width=80% align="center"> <Font size=7>Inventory Management System</Font> </td>
+                    <td width=10%></td>                    
+                </tr>
+                <tr>                    
+                    <td width=80% valign="top" align="center">Enjoy using Kendo and Ehcache</td>
+                    <td width=10%></td>    
+                </tr>
+            </table>
+        </div>
+        <div id="grid"></div>
+        <ul id="context-menu">
+            <li>context menu item 1</li>
+            <li>context menu item 2</li>
+        </ul>
+        <div id="window">    
+            <div id="chart"></div>        
+        </div>
+        <div>            
+            <p>
+                <div>
+                    Using data from Ehcache?
+                    <input type="checkbox" id="cache-switch" />
+                    <a id="clearCacheButton">Clear Cache</a>
+                    <a id="refreshGridButton">Refresh Data</a>
+                    <a id="viewChartButton">View in Chart</a> 
+                </div>
+            </p>            
+        </div>
+
+        <script>
+            var types = [{"typeId":1,type:"Large"},
+                         {"typeId":2,type:"Medium"},
+                         {"typeId":3,type:"Small"}];
+            $(document).ready(function () {
+
+                var crudServiceBaseUrl = "http://localhost:8080/demo/api/products",
+                    productsUrl = "/cache/products",
+                    dataSource = new kendo.data.DataSource({
+                        transport: {
+                            read:  {
+                                url: crudServiceBaseUrl + productsUrl,
+                                dataType: "json",
+                                type: "GET",
+                                cache: false
+                            },
+                            update: {
+                                url: crudServiceBaseUrl + "/update",
+                                dataType: "json",
+                                type: "PUT"
+                            },
+                            destroy: {
+                                url: crudServiceBaseUrl + "/destroy",
+                                dataType: "json",
+                                type: "DELETE"
+                            },
+                            create: {
+                                url: crudServiceBaseUrl + "/create",
+                                dataType: "json",  
+                                type: "POST"                              
+                            },
+                            parameterMap: function (options, type) {
+                                if (type == "create" && options.models) {
+                                    return {params: kendo.stringify(options.models[0])};
+                                } else if (type == "update" && options.models) {
+                                    return kendo.stringify(options.models[0]);
+                                } else if (type == "destroy" && options.models) {
+                                    return kendo.stringify(options.models[0]);
+                                }
+                            }
+                        },
+                        batch: true,
+                        pageSize: 20,
+                        schema: {                            
+                            model: {
+                                id: "productID",
+                                fields: {    
+                                    productID: { editable: false, nullable: true },                               
+                                    productName: { validation: { required: true } },
+                                    unitPrice: { type: "number", validation: { required: true, min: 1} },
+                                    discontinued: { type: "boolean" },
+                                    unitsInStock: { type: "number", validation: { min: 0, required: true } },
+                                    type: { type: "string", defaultValue: "Small" }
+                                }
+                            }
+                        }
+                    });
+
+                $("#grid").kendoGrid({
+                    dataSource: dataSource,
+                    pageable: true,
+                    height: $(window).height() - 170,
+                    toolbar: ["create"],
+                    columns: [                                                   
+                        { field:"productName", title: "Product Name", width: "600px" },
+                        { field: "unitPrice", title:"Unit Price", format: "{0:c}", width: "150px" },
+                        { field: "unitsInStock", title:"Units In Stock", width: "150px" },
+                        { field: "discontinued", title:"Discontinued",width: "150px" },
+                        { field: "type", title: "Screen Type", editor: categoryDropDownEditor, template: "#=type#", width: "150px" },
+                        { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+                    editable: "popup",
+                    groupable: true,
+                    sortable: true,
+                    filterable: true,
+                    columnMenu: true,
+                    edit: function (e) {
+                        $("#type").kendoDropDownList({
+                            dataSource: new kendo.data.DataSource({
+                                data: types
+                            })
+                        });
+                    },
+                    detailInit: detailInit,
+                });
+
+                function detailInit(e) {
+                    $("<div/>").appendTo(e.detailCell).kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            data: [{employeeID: 1, "firstName" : "Michael", "lastName" : "Han"}],
+                            schema: {
+                                model:{
+                                    id: "employeeID",
+                                    fields: { 
+                                        employeeID: { editable: false, nullable: true },
+                                        firstName: { validation: { required: true } },
+                                        lastName: { validation: { required: true } }        
+                                    }
+                                }
+                            },
+                            pageSize: 10                            
+                        },
+                        scrollable: false,
+                        sortable: true,
+                        pageable: true,
+                        editable: "inline",
+                        columns: [
+                            { field: "employeeID", width: "110px", title : "Employee ID"},
+                            { field: "firstName", title:"First Name", width: "110px" },
+                            { field: "lastName", title:"Last Name", width: "110px"},
+                            { command: ["edit"], title: "&nbsp;", width: "250px" },
+                        ]
+                    });
+                }
+
+                $("#context-menu").kendoContextMenu({
+                    target: "#grid",
+                    animation: {
+                        open: { effects: "fadeIn" },
+                        duration: 500
+                    },
+                    select: function(e) {
+                        alert("You selected menu item : " + e.item.innerText);
+                    }                  
+                });
+
+                function categoryDropDownEditor(container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            autoBind: false,
+                            dataTextField: "type",
+                            dataValueField: "type",
+                            dataSource: types
+                        });
+                }
+
+                function clearCacheButtonOnClick(e) {  
+                    kendo.confirm("Are you sure that you want to proceed?").then(function () {
+                        clearEhcache();
+                    }, function () {
+                        //kendo.alert("You chose to Cancel action.");
+                    });
+                                
+                }
+
+                function clearEhcache(){
+                    $.ajax({
+                        type: "GET",
+                        url: "http://localhost:8080/demo/api/products/cache/clear",                        
+                        //contentType: "application/json; charset=utf-8",
+                        contentType: "text/plain; charset=utf-8",
+                        //dataType: "json",
+                        dataType: "text",                        
+                        success: function(response){ 
+                            //kendo.alert(response);
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(xhr.status);                            
+                            alert(thrownError);                            
+                        }
+                    }); 
+                }
+
+                $("#clearCacheButton").kendoButton({    
+                    icon: "close",
+                    click: clearCacheButtonOnClick,                                 
+                });
+
+                function switchOnChange(e) {
+                    var clearCacheButtonInstance = $("#clearCacheButton").data("kendoButton");
+                    clearCacheButtonInstance.enable(e.checked);                    
+                    if(e.checked){
+                        productsUrl = "/cache/products";                       
+                        
+                    }else{
+                        productsUrl = "/";
+                    }
+                    var grid = $('#grid').data('kendoGrid');
+                    grid.dataSource.options.transport.read.url = crudServiceBaseUrl + productsUrl;                       
+                    
+                }    
+                $("#cache-switch").kendoMobileSwitch({
+                    onLabel: "YES",
+                    offLabel: "NO",
+                    checked: true,
+                    change: switchOnChange
+                });  
+
+                function refreshGridButtonOnClick(e) {  
+                    var grid = $('#grid').data('kendoGrid');                    
+                    grid.dataSource.read();                                               
+                }  
+
+                $("#refreshGridButton").kendoButton({    
+                    icon: "refresh",
+                    click: refreshGridButtonOnClick,                                 
+                });
+
+                $("#window").kendoWindow({
+                    visible : false,
+                    actions: [
+                            "Minimize",
+                            "Maximize",
+                            "Close"
+                        ]   
+                });
+
+                function viewChartButtonOnClick(e) {  
+                    var chartWindow = $('#window').data('kendoWindow');
+                    chartWindow.setOptions({
+                        width: 500,
+                        height: 500,                        
+                        title: "View in Chart",
+                        modal: true           
+                    });
+                    createChart();
+                    chartWindow.center();                    
+                    chartWindow.open();
+
+                    
+                    getInfoForChart();                
+                    
+                }
+                
+                $("#viewChartButton").kendoButton({    
+                    icon: "dimension",
+                    click: viewChartButtonOnClick,                                 
+                });
+
+                function getInfoForChart(){
+                    var data = $('#grid').data('kendoGrid').dataSource.data();
+                    var jsonStr = '{ "name":"Line 1", "total" :[], "unit" : [], "products" : []}';
+                    var jsonObj = JSON.parse(jsonStr); 
+                    for(i = 0 ; i < data.length; i++){
+                        var row = data[i];
+                        jsonObj["total"].push(row.unitPrice * row.unitsInStock);
+                        jsonObj["unit"].push(row.unitPrice);
+                        jsonObj["products"].push(row.productName);
+                    }
+                    //console.log(JSON.stringify(jsonObj));
+                    return jsonObj;
+                }
+
+                function createChart() {
+                    var jsonObj = getInfoForChart();
+                    var serieJSON = '{"name":"", "data":[]}';
+                    var serieObj = JSON.parse(serieJSON); 
+                    serieObj["name"] = "Total Units";
+                    serieObj["data"] = jsonObj["total"];
+                    //alert(JSON.stringify(serieObj));
+
+                    var seriesArray = [];
+                    seriesArray.push(serieObj);
+
+                    serieObj = JSON.parse(serieJSON); 
+                    serieObj["name"] = "Unit";
+                    serieObj["data"] = jsonObj["unit"];
+                    seriesArray.push(serieObj);
+
+                    //alert(JSON.stringify(seriesArray));
+                    $("#chart").kendoChart({
+                        title: {
+                            text: "Amount by Product in Stock"
+                        },
+                        legend: {
+                            position: "bottom"
+                        },
+                        chartArea: {
+                            background: ""
+                        },
+                        seriesDefaults: {
+                            type: "line",
+                            style: "smooth"
+                        },
+                        series: seriesArray,
+                        valueAxis: {
+                            labels: {
+                                format: "{0:c}"
+                            },
+                            line: {
+                                visible: false
+                            },
+                            axisCrossingValue: -10
+                        },
+                        categoryAxis: {
+                            categories: jsonObj["products"],
+                            majorGridLines: {
+                                visible: false
+                            },
+                            labels: {
+                                rotation: "auto"
+                            }
+                        },
+                        tooltip: {
+                            visible: true,
+                            //format: "{0:c}",
+                            template: "Amount: #= kendo.format('{0:c}',value) #"
+                        }
+                    });
+                }
+            });
+        </script>
+    </div>
+
+    <style>               
+
+        #header {
+            text-align: center;  
+            font-family: Georgia;
+        }        
+                    
+    </style>
+
+</body>
+
+
+</html>
