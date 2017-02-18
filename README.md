@@ -10,8 +10,8 @@ To understand the code:
 /resources/js folder:
 It used two js frameworks: jquery.min.js & kendo.all.min.js
 /resources/styles folder:
-Common style files usid by kendo ui.
-IMPORTANT: KendoUI is not a free framework!!!
+Common style files used by kendo ui.
+IMPORTANT: KendoUI is NOT free!!!
 /resources/KendoEhcacheDemo.html is the source code of the ui.
 
 *** RESTful API ***
