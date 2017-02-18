@@ -1,4 +1,4 @@
-package com.qad.demo.service;
+package com.test.demo.service;
 
 
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.Map;
 
 import javax.servlet.ServletInputStream;
 
-import com.qad.demo.model.Bucket;
-import com.qad.demo.model.Product;
-import com.qad.demo.model.Result;
+import com.test.demo.model.Bucket;
+import com.test.demo.model.Product;
+import com.test.demo.model.Result;
 
 public interface ProductService {
 	List<Product> getAllProducts(String cacheName);

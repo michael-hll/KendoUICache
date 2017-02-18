@@ -1,4 +1,4 @@
-package com.qad.demo.model;
+package com.test.demo.model;
 
 import java.io.Serializable;
 

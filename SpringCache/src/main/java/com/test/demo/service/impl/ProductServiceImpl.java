@@ -1,4 +1,4 @@
-package com.qad.demo.service.impl;
+package com.test.demo.service.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -12,10 +12,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.qad.demo.model.Bucket;
-import com.qad.demo.model.Product;
-import com.qad.demo.model.Result;
-import com.qad.demo.service.ProductService;
+import com.test.demo.model.Bucket;
+import com.test.demo.model.Product;
+import com.test.demo.model.Result;
+import com.test.demo.service.ProductService;
 
 @Service("productService")
 public class ProductServiceImpl implements ProductService{

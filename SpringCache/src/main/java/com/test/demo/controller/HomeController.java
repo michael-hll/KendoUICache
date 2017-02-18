@@ -1,4 +1,4 @@
-package com.qad.demo.controller;
+package com.test.demo.controller;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qad.demo.model.Bucket;
-import com.qad.demo.model.Product;
-import com.qad.demo.model.Result;
-import com.qad.demo.service.ProductService;
+import com.test.demo.model.Bucket;
+import com.test.demo.model.Product;
+import com.test.demo.model.Result;
+import com.test.demo.service.ProductService;
 
 /**
  * Handles requests for the application home page.
