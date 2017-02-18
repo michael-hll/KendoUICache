@@ -24,4 +24,6 @@ serlet-context.xml has all the configuratioins for Ehcache
 In order to run this sample code, you need to run in a server, eg your local tomcat, and enter the below address to access the main UI:
 http://localhost:8080/demo/resources/KendoEhcacheDemo.html
 
+In the folder UI-snapshots you can find the UI pictures.
+
 Hope this sample helps you!
