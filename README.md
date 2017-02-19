@@ -6,6 +6,7 @@ This sample project using KendoUI grid, and chart to display a beautiful UI. In 
 In oder to improve the performance, in the back-end integrated Ehcache into Spring Cache.
 
 To understand the code:
+
 *** UI ***
 /resources/js folder:
 It used two js frameworks: jquery.min.js & kendo.all.min.js
